@@ -5,6 +5,7 @@ import android.os.Bundle
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import java.util.*
 
 
 enum class MapsActivity_Intent {
@@ -29,6 +30,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnStreetViewPanora
     private var intentLatitude: Double = 0.0
     private var intentLongitude: Double = 0.0
 
+    private val historyActions = Stack<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -41,17 +44,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnStreetViewPanora
         mapFragment = supportFragmentManager.findFragmentById(R.id.map)!! as SupportMapFragment
         panoramaFragment = supportFragmentManager.findFragmentById(R.id.panorama)!! as SupportStreetViewPanoramaFragment
 
-        switch(intentAction)
+        push(intentAction)
 
         mapTypesFragment.setOnCheckedChangeListener(object : MapTypesFragment.OnCheckedChangeListener {
             override fun onCheckChange(checkedId: Int) {
+                println("onCheckChange, ${checkedId}")
+
                 val action = when (checkedId) {
                     0 -> SHOW_LOCATION
                     1 -> SHOW_PANORAMA
                     else -> ""
                 }
 
-                switch(action)
+                push(action)
             }
         })
 
@@ -59,7 +64,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnStreetViewPanora
         panoramaFragment.getStreetViewPanoramaAsync(this)
     }
 
-    fun switch(action: String) {
+    override fun onBackPressed() {
+        if (historyActions.size <= 1) {
+            super.onBackPressed()
+        } else {
+            pop()
+        }
+    }
+
+    private fun push(action: String) {
+        historyActions.push(action)
+        println(historyActions)
+
+        switch(action)
+    }
+
+    private fun pop() {
+        val currentAction = historyActions.pop()
+        val previousAction = historyActions.pop()
+
+        switch(previousAction)
+
+        historyActions.push(previousAction)
+    }
+
+    private fun switch(action: String) {
         when (action) {
             SHOW_LOCATION -> {
                 val fragmentTransaction = supportFragmentManager.beginTransaction()

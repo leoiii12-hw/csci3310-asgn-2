@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioGroup
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * A simple [Fragment] subclass.
@@ -14,7 +15,7 @@ import android.widget.RadioGroup
  */
 class MapTypesFragment : Fragment() {
 
-    lateinit var radioGroup: RadioGroup
+    private lateinit var radioGroup: RadioGroup
 
     private var onCheckedChangeListener: OnCheckedChangeListener? = null
 
@@ -30,7 +31,10 @@ class MapTypesFragment : Fragment() {
             val radioButton = radioGroup.findViewById<View>(checkedId)
             val index = radioGroup.indexOfChild(radioButton)
 
-            onCheckedChangeListener?.onCheckChange(index)
+            if (radioButton.isPressed) {
+                onCheckedChangeListener?.onCheckChange(index)
+            }
+
         }
 
         return rootView
